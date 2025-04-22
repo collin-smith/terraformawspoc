@@ -1,0 +1,108 @@
+import boto3
+import json
+import logging
+import os
+import pymysql
+import random
+import datetime
+
+#SHOW DATABASES;
+
+#CREATE DATABASE POC;
+#USE POC;
+#CREATE TABLE TASK
+#(
+#ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+#TITLE VARCHAR(100),
+#PRIORITY INT NOT NULL,
+#NOTES VARCHAR(1000),
+#DUEDATE TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+#CREATED TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+#UPDATED TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+#);
+
+
+#INSERT INTO TASK (TITLE,PRIORITY,NOTES,DUEDATE,CREATED,UPDATED) VALUES ("Something important", 1, "I should really get this done!","2026-06-24 13:23:30",CURRENT_TIMESTAMP(),CURRENT_TIMESTAMP());
+
+
+#{
+#    "id":"3",
+#    "title":"mytitle",
+#    "priority":"1",
+#    "notes":"some notes",
+#    "duedate":"2026-06-24 13:23:30",
+#}
+
+
+def get_secret(secret_name):
+    print("getsecret")
+    client = boto3.client('secretsmanager')
+    response = client.get_secret_value(SecretId=secret_name)
+    secret = json.loads(response['SecretString'])
+    return secret
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+def handler(event, context):
+
+    logger.info("Starting lambda execution")
+    try:
+        secret_name = os.environ['SECRET_NAME']
+        database_name = os.environ['DB_NAME']
+        secret = get_secret(secret_name)
+        connection = pymysql.connect(
+            host=secret['host'],
+            user=secret['username'],
+            password=secret['password'],
+            db=database_name
+        )
+         #Examine some of the event properties
+        path = event['path']
+        httpMethod = event['httpMethod']
+        queryStringParameters = event['queryStringParameters']
+        #id = event['queryStringParameters']['id']
+        #Not for GETS body = json.loads(event.get('body', '{}'))
+        #id = event['pathParameters']['id']
+        #Extract the customer name from the request body
+        body = json.loads(event.get('body', '{}'))
+        id = body['id']
+
+        sql_string1 = f"DELETE FROM TASK WHERE ID=%s"
+        sql = sql_string1 % (id)
+        logger.info("SQL=%s",sql)
+        success = False
+        try:
+            with connection.cursor() as cursor:
+                # Add Record record to Customer table
+                cursor.execute(sql)
+                connection.commit()
+                success = True
+        finally:
+            connection.close()
+
+        #Start to formulate the response
+        json_data = [{
+             "success" : success
+             }]
+    
+        logger.info("logger.info json_data=%s",json_data)
+
+        return {
+            'statusCode': 200,
+             'headers': {
+                "Access-Control-Allow-Origin" : "*", 
+                "Access-Control-Allow-Credentials" : "true",
+                "Access-Control-Allow-Methods": 'GET, POST, PUT, DELETE, OPTIONS'
+                },
+            'body': json.dumps(json_data)
+        }
+    except Exception as e:
+        logger.error('Error during Lambda execution', exc_info=True)
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": str(e)}),
+        }
+
+
+
