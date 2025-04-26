@@ -42,8 +42,6 @@ resource "aws_lambda_permission" "lambda_permissionlambdagettasks" {
 # API Gateway Resource (Endpoint)
 resource "aws_api_gateway_resource" "task" {
   rest_api_id = aws_api_gateway_rest_api.poc_api.id
-#  rest_api_id = aws_api_gateway_resource.tasks.id
-#  parent_id   = aws_api_gateway_rest_api.poc_api.root_resource_id
   parent_id   = aws_api_gateway_resource.tasks.id
   path_part   = "{id}"
 }
@@ -75,13 +73,6 @@ resource "aws_lambda_permission" "lambda_permissionlambdagettask" {
 }
 # insert Lambda End
 
-# ENDPOINT createtask(POST)
-#resource "aws_api_gateway_resource" "createtask" {
-#  rest_api_id = aws_api_gateway_rest_api.poc_api.id
-#  parent_id   = aws_api_gateway_rest_api.poc_api.root_resource_id
-#  path_part   = "tasks" 
-#}
-
 # API Gateway Method
 resource "aws_api_gateway_method" "createtask_method" {
   rest_api_id   = aws_api_gateway_rest_api.poc_api.id
@@ -106,14 +97,6 @@ resource "aws_lambda_permission" "lambda_permissionlambdacreatetasks" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.poc_api.execution_arn}/*/*"
 }
-
-
-# ENDPOINT updatetask(PUT)
-#resource "aws_api_gateway_resource" "updatetask" {
-#  rest_api_id = aws_api_gateway_rest_api.poc_api.id
-#  parent_id   = aws_api_gateway_rest_api.poc_api.root_resource_id
-#  path_part   = "tasks" 
-#}
 
 # API Gateway Method
 resource "aws_api_gateway_method" "updatetask_method" {
@@ -199,39 +182,15 @@ resource "aws_lambda_permission" "lambda_permissionlambdaupdatetask" {
   source_arn    = "${aws_api_gateway_rest_api.poc_api.execution_arn}/*/*"
 }
 
-# ENDPOINT deletetask(DELETE) WORKS WHEN NOT HERE
-#resource "aws_api_gateway_resource" "deletetask" {
-#  rest_api_id = aws_api_gateway_rest_api.poc_api.id
-#  parent_id   = aws_api_gateway_rest_api.poc_api.root_resource_id
-#  path_part   = "tasks" 
-#}
-
-#ADDED  SIBLING ERROR
-#resource "aws_api_gateway_resource" "deletetask" {
-#  rest_api_id = aws_api_gateway_rest_api.poc_api.id
-#  parent_id   = aws_api_gateway_resource.tasks.id
-#  path_part   = "{deleteid}" 
-#}
-
-# API Gateway Method  WORKS
+# API Gateway Method  
 resource "aws_api_gateway_method" "deletetask_method" {
   rest_api_id   = aws_api_gateway_rest_api.poc_api.id
   resource_id   = aws_api_gateway_resource.tasks.id #
-  http_method   = "DELETE" #
+  http_method   = "DELETE" 
   authorization = "NONE"
 }
 
-# API Gateway Method  SIBLING ERROR
-# Error: creating API Gateway Resource: BadRequestException: A sibling ({id}) of this resource already has a variable path part -- only one is allowed
-#resource "aws_api_gateway_method" "deletetask_method" {
-#  rest_api_id   = aws_api_gateway_rest_api.poc_api.id
-#  resource_id   = aws_api_gateway_resource.deletetask.id #
-#  http_method   = "DELETE" #
-#  authorization = "NONE"
-#}
-
-
-# API Gateway Integration WORKS
+# API Gateway Integration 
 resource "aws_api_gateway_integration" "deletetask_integration" {
   rest_api_id = aws_api_gateway_rest_api.poc_api.id
   resource_id = aws_api_gateway_resource.tasks.id #
@@ -240,18 +199,6 @@ resource "aws_api_gateway_integration" "deletetask_integration" {
   integration_http_method = "POST"
   uri = aws_lambda_function.lambda_deletetask.invoke_arn
 }
-
-# API Gateway Integration ADDED  SIBLING ERROR
-#resource "aws_api_gateway_integration" "deletetask_integration" {
-#  rest_api_id = aws_api_gateway_rest_api.poc_api.id
-##  resource_id = aws_api_gateway_resource.deletetask.id #
-#  http_method = aws_api_gateway_method.deletetask_method.http_method #
-#  type        = "AWS_PROXY"
-#  integration_http_method = "POST"
-#  uri = aws_lambda_function.lambda_deletetask.invoke_arn
-#}
-
-
 
 # Lambda permission
 resource "aws_lambda_permission" "lambda_permissionlambdadeletetask" {
@@ -272,9 +219,10 @@ resource "aws_api_gateway_deployment" "api_deployment" {
     aws_api_gateway_integration.deletetask_integration,
   ]
   rest_api_id = aws_api_gateway_rest_api.poc_api.id
-  stage_name  = "prod"
 }
 
-
-
-
+resource "aws_api_gateway_stage" "api_deployment" {
+  deployment_id = aws_api_gateway_deployment.api_deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.poc_api.id
+  stage_name    = "prod"
+}
