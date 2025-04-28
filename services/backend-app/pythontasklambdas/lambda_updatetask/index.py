@@ -6,33 +6,14 @@ import pymysql
 import random
 import datetime
 
-#SHOW DATABASES;
-
-#CREATE DATABASE POC;
-#USE POC;
-#CREATE TABLE TASK
-#(
-#ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-#TITLE VARCHAR(100),
-#PRIORITY INT NOT NULL,
-#NOTES VARCHAR(1000),
-#DUEDATE TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-#CREATED TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-#UPDATED TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-#);
-
-
-#INSERT INTO TASK (TITLE,PRIORITY,NOTES,DUEDATE,CREATED,UPDATED) VALUES ("Something important", 1, "I should really get this done!","2026-06-24 13:23:30",CURRENT_TIMESTAMP(),CURRENT_TIMESTAMP());
-
-
+#Sample JSON request
 #{
-#    "id":"3",
-#    "title":"mytitle",
+#    "id":"2",
+#    "title":"My new UPDATED Task",
 #    "priority":"1",
-#    "notes":"some notes",
-#    "duedate":"2026-06-24 13:23:30",
+#    "notes":"I should really do this UPDATED TASK!",
+#    "duedate":"2025-06-24 13:23:30"
 #}
-
 
 def get_secret(secret_name):
     print("getsecret")
@@ -109,11 +90,3 @@ def handler(event, context):
             "statusCode": 500,
             "body": json.dumps({"error": str(e)}),
         }
-
-
-#                "Access-Control-Allow-Origin" : "*", 
-#                "Access-Control-Allow-Credentials" : "true",
-#                "Access-Control-Allow-Methods": 'GET, POST, PUT, DELETE, OPTIONS'
-
-
-
