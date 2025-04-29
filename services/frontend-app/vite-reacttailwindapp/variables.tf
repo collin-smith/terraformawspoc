@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "bucket_name_primary" {
   type        = string
   description = "Name of the S3 Bucket"
-  default     = "s3cloudfrontvitereactapp20250421"
+  default     = "s3cloudfrontvitereactapp20250429"
 }
 
 variable "common_tags" {
@@ -22,6 +22,6 @@ variable "common_tags" {
 variable "sourcefiles" {
   type        = string
   description = "Path of web files to upload"
-  default     = "../vite-reacttailwindapp/dist"
+  default     = "./dist"
 }
 
