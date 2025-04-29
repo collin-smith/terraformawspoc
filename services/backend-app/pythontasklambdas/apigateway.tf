@@ -137,9 +137,14 @@ resource "aws_api_gateway_integration_response" "cors_integration_response" {
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 
+  #Add the cors after the non-get functions are created (POST, PUT, DELETE)
   depends_on = [
+    aws_api_gateway_method.createtask_method,
+    aws_api_gateway_integration.createtask_integration,
     aws_api_gateway_method.updatetask_method,
-    aws_api_gateway_integration.updatetask_integration
+    aws_api_gateway_integration.updatetask_integration,
+    aws_api_gateway_method.deletetask_method,
+    aws_api_gateway_integration.deletetask_integration,
   ]
 
 }
