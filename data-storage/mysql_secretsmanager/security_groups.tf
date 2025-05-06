@@ -74,13 +74,24 @@ resource "aws_security_group" "sg_vpce_secretsmanager" {
     description = "Allow HTTPS inbound from the VPC itself"
   }
 
+
+  #If you want to update your bastion host with access to the internet for updated
   egress {
     description = "Allow all outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [var.vpc_cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
   }
+
+  #If you want to limit your bastion host to only vpc traffic
+#  egress {
+#    description = "Allow all outbound traffic"
+ #   from_port   = 0
+ #   to_port     = 0
+#    protocol    = "-1"
+ #   cidr_blocks = [var.vpc_cidr_block]
+ # }
 
   tags = merge(
     var.common_tags,
